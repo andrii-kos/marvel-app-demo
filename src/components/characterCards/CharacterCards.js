@@ -8,37 +8,48 @@ import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 
+
 const CharacterCards = (props) => {
     const [characters, setCharactersState] = useState([]);
     const [offset, setOffset] = useState(0)
 
     const { isLoading, isError, getAllCharacters } = useMarvelService();
-   
+
     const liElem = useRef([])
+    const mounted = useRef();
+    useEffect(() => {
+    if (!mounted.current) {
+        // do componentDidMount logic
+        mounted.current = true;
+        
+    } else {
+        liElem.current[0].focus()
+        mounted.current = false;
+    }
+    });
 
     const setInitialChar = () => {
         setOffset((offset) => offset + 9);
     }
     const setCharacters = (data) => {
         setCharactersState(characters => characters.concat(data))
+        
     }
 
     const onLoadMore = () => {
         setInitialChar()
         getAllCharacters('9', offset)
             .then(setCharacters)
+        
     }
 
-    const showModalByScroll = () => {
+  /*   const showModalByScroll = () => {
         if (window.pageYOffset + document.documentElement.clientHeight >= 
         document.documentElement.scrollHeight - 20) {
             onLoadMore();
        } 
-    }
+    } */
 
-    useEffect(() => {
-        onLoadMore();
-    }, [])
 
     // show more character cards when sroll to the end of the page
     /* useEffect(() => {
@@ -47,6 +58,13 @@ const CharacterCards = (props) => {
           window.removeEventListener('scroll', showModalByScroll);
         }
       },) */ 
+
+    useEffect(() => {
+        onLoadMore();
+    }, [])
+
+    
+
 
     const onCardClick = (id,index) => {
         props.onCharSelected(id);
@@ -82,7 +100,7 @@ const CharacterCards = (props) => {
             </ul>
             { error }
             { loading }
-            <LoadMoreBtn isLoading={isLoading}  onLoadMore={onLoadMore}/>
+            <LoadMoreBtn  isLoading={isLoading}  onLoadMore={onLoadMore}/>
         </div>
     )
 }
