@@ -16,18 +16,7 @@ const CharacterCards = (props) => {
     const { isLoading, isError, getAllCharacters } = useMarvelService();
 
     const liElem = useRef([])
-    const mounted = useRef();
-    useEffect(() => {
-    if (!mounted.current) {
-        // do componentDidMount logic
-        mounted.current = true;
-        
-    } else {
-        liElem.current[0].focus()
-        mounted.current = false;
-    }
-    });
-
+  
     const setInitialChar = () => {
         setOffset((offset) => offset + 9);
     }
