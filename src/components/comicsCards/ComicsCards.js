@@ -29,6 +29,22 @@ const ComicsCards = () => {
         setComicsState(comics => comics.concat(data))
     }
 
+    const showModalByScroll = () => {
+        if (window.pageYOffset + document.documentElement.clientHeight >= 
+        document.documentElement.scrollHeight - 100) {
+            onLoadMore();
+       } 
+    }
+
+
+    // show more character cards when sroll to the end of the page
+    useEffect(() => {
+        window.addEventListener('scroll', showModalByScroll);
+        return () => {
+          window.removeEventListener('scroll', showModalByScroll);
+        }
+      },) 
+
     const comicsList = comics.map(({thumbnail, title ,price, id}, index) => {
         const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
         const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};

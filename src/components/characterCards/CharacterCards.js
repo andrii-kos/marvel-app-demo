@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { useState, useEffect, useRef } from 'react';
 import useMarvelService from '..//../services/MarvelService';
-import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn';
+// import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 
@@ -32,21 +32,21 @@ const CharacterCards = (props) => {
         
     }
 
-  /*   const showModalByScroll = () => {
+    const showModalByScroll = () => {
         if (window.pageYOffset + document.documentElement.clientHeight >= 
-        document.documentElement.scrollHeight - 20) {
+        document.documentElement.scrollHeight - 100) {
             onLoadMore();
        } 
-    } */
+    }
 
 
     // show more character cards when sroll to the end of the page
-    /* useEffect(() => {
+    useEffect(() => {
         window.addEventListener('scroll', showModalByScroll);
         return () => {
           window.removeEventListener('scroll', showModalByScroll);
         }
-      },) */ 
+      },) 
 
     useEffect(() => {
         onLoadMore();
@@ -89,7 +89,8 @@ const CharacterCards = (props) => {
             </ul>
             { error }
             { loading }
-            <LoadMoreBtn  isLoading={isLoading}  onLoadMore={onLoadMore}/>
+            {/* button to load more items */}
+            {/* <LoadMoreBtn  isLoading={isLoading}  onLoadMore={onLoadMore}/> */}
         </div>
     )
 }
