@@ -34,7 +34,7 @@ const CharacterCard = ({ charId }) => {
 
     const skeleton = isLoading ? <Skeleton /> : null;
     const errorMessage = isError ? <ErrorMessage /> : null;
-    const content =  character && !isLoading && !isError ? <CharBasis character={character}/> : null;
+    const content =  character && !isLoading && !isError ? <CharView character={character}/> : null;
 
     return (
         <div className="char__info">
@@ -45,7 +45,7 @@ const CharacterCard = ({ charId }) => {
     )
 }
 
-const CharBasis = ({character}) => {
+const CharView = ({character}) => {
     const {name, description, thumbnail, homePage, wiki, comics} = character;
     const isImageNotFound = thumbnail.indexOf('image_not_available') === -1;
     const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};

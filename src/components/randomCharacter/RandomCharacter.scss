@@ -4,12 +4,32 @@
     display: grid;
     grid-template-columns: repeat(2, 50%);
     box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.25);
+
     &__block {
         padding: 40px 35px;
         display: grid;
         grid-template-columns: 180px auto;
         column-gap: 30px;
+        &-enter {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        &-enter-active {
+            visibility: visible;
+            opacity: 1;
+            transition: all 100ms ease-in;
+        }
+        &-exit {
+            opacity: 1;
+        }
+        
+        &-exit-active {
+            opacity: 0;
+            transition: all 100ms ease-in;
+        }
     }
+
     &__img {
         width: 180px;
         height: 180px;

@@ -1,5 +1,5 @@
 import './CharacterCards.scss';
-
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PropTypes from 'prop-types';
 
 import { useState, useEffect, useRef } from 'react';
@@ -33,8 +33,8 @@ const CharacterCards = (props) => {
     }
 
     const showModalByScroll = () => {
-        if (window.pageYOffset + document.documentElement.clientHeight >= 
-        document.documentElement.scrollHeight - 100) {
+        if (window.pageYOffset + document.documentElement.clientHeight > 
+        document.documentElement.scrollHeight - 100 && !isLoading) {
             onLoadMore();
        } 
     }
@@ -53,8 +53,6 @@ const CharacterCards = (props) => {
     }, [])
 
     
-
-
     const onCardClick = (id,index) => {
         props.onCharSelected(id);
         liElem.current[index].focus();
@@ -64,17 +62,19 @@ const CharacterCards = (props) => {
         const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
         const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
         return (
-            <li className="char__item"
-                key={id}
-                onClick={() => onCardClick(id, index)}
-                onKeyPress={() => onCardClick(id, index)}
-                ref={(elem) => liElem.current[index] = elem}
-                tabIndex={index + 7}>
-                <img src={thumbnail} 
-                        alt="abyss" 
-                        style={imageStyle}/>
-                <div className="char__name">{name}</div>
-            </li>
+            <CSSTransition key={id} timeout={300} classNames={"char__item"} >
+                <li className="char__item"
+                    onClick={() => onCardClick(id, index)}
+                    onKeyPress={() => onCardClick(id, index)}
+                    ref={(elem) => liElem.current[index] = elem}
+                    tabIndex={index + 7}>
+                    <img src={thumbnail} 
+                         alt="abyss" 
+                         style={imageStyle}/>
+                    <div className="char__name">{name}</div>
+                </li>
+            </CSSTransition>
+            
         )
     });
 
@@ -85,7 +85,9 @@ const CharacterCards = (props) => {
     return (
         <div className="char__list">
             <ul className="char__grid">
-                { content }
+                <TransitionGroup component={null}>
+                    { content }
+                </TransitionGroup>
             </ul>
             { error }
             { loading }

@@ -1,6 +1,6 @@
 import './RandomCharacter.scss';
 import mjolnirIMG from '..//../resources/mjolnir.png';
-import {Link} from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
 import { useState, useEffect } from 'react';
 import useMarvelService from '..//../services/MarvelService';
 
@@ -10,33 +10,43 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 const RandomCharacter = ({onCharSelected}) => {
     const [character, setCharacterState] = useState(null);
     const {isLoading, isError, getCharacterById, clearError} = useMarvelService()
-    
+    const [inProp, setInProp] = useState(false);
     const setCharacter = (character) => {
         setCharacterState(character);
+        
     }
-
     useEffect(() => {
         clearError()
         updateChart();
     }, [])
 
-    const updateChart = () => {
+    const updateChart = async () => {
+        clearError()
         const id = Math.floor(Math.random() * (1011400 - 1011000)) + 1011000;
-        getCharacterById(id)
+        setInProp(true)
+        await getCharacterById(id)
             .then(setCharacter)
+        setInProp(false)
+    
     }
     const errorMessage = isError ? <ErrorMessage/> : null;
     const spinner = isLoading ? <Spinner/> : null;
-    const content = !(isLoading || isError || !character) ? <RandomCharacterView onCharSelected={onCharSelected}  character={character} /> : null;
+    const content = !(isLoading || isError || !character) ? <RandomCharacterView inProp={inProp} onCharSelected={onCharSelected}  character={character} />
+       : null;
 
     return (
-        <div className="randomchar">
-            {errorMessage}
-            {spinner}
-            {content}
-            <div className="randomchar__static">
-                <p className="randomchar__title">
-                    Random character for today!<br />
+            <div className="randomchar">
+                {errorMessage}
+                {spinner}
+                <CSSTransition 
+                    in={!isLoading} 
+                    timeout={100} 
+                    classNames={'randomchar__block'}>
+                    {content}
+                </CSSTransition>
+                <div className="randomchar__static">
+                    <p className="randomchar__title">
+                        Random character for today!<br />
                     Do you want to get to know him better?
                 </p>
                 <p className="randomchar__title">
@@ -53,6 +63,7 @@ const RandomCharacter = ({onCharSelected}) => {
                 <img src={mjolnirIMG} alt="mjolnir" className="randomchar__decoration" />
             </div>
         </div>
+        
     )
 }
 
@@ -71,28 +82,29 @@ const RandomCharacterView = ({character, isError, onCharSelected}) => {
     };
     const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
     const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
-
     return (
-        <div onClick={() => onCharSelected(id)} className="randomchar__block">
-            <img src={thumbnail} 
-                 alt="Random character" 
-                 className="randomchar__img" 
-                 style={imageStyle}
-            />
-            <div className="randomchar__info">
-                <p className="randomchar__name">{isError ? 'No Character' : name}</p>
-                <p className="randomchar__descr">
-                    {descriptionToDisplay(description)}
-                </p>
-                <div className="randomchar__btns">
-                    <a href={homePage} tabIndex={4} className="button button__main">
-                        <div className="inner">homepage</div>
-                    </a>
-                    <a href={wiki} tabIndex={5} className="button button__secondary">
-                        <div className="inner">Wiki</div>
-                    </a>
-                </div>
-            </div>         
-        </div>
+        
+            <div onClick={() => onCharSelected(id)} className="randomchar__block">
+                <img src={thumbnail} 
+                    alt="Random character" 
+                    className="randomchar__img" 
+                    style={imageStyle}
+                />
+                <div className="randomchar__info">
+                    <p className="randomchar__name">{isError ? 'No Character' : name}</p>
+                    <p className="randomchar__descr">
+                        {descriptionToDisplay(description)}
+                    </p>
+                    <div className="randomchar__btns">
+                        <a href={homePage} tabIndex={4} className="button button__main">
+                            <div className="inner">homepage</div>
+                        </a>
+                        <a href={wiki} tabIndex={5} className="button button__secondary">
+                            <div className="inner">Wiki</div>
+                        </a>
+                    </div>
+                </div>       
+            </div> 
+        
     )
 }
