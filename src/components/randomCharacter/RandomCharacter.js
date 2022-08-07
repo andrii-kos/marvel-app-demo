@@ -10,7 +10,7 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 const RandomCharacter = ({onCharSelected}) => {
     const [character, setCharacterState] = useState(null);
     const {isLoading, isError, getCharacterById, clearError} = useMarvelService()
-    const [inProp, setInProp] = useState(false);
+
     const setCharacter = (character) => {
         setCharacterState(character);
         
@@ -20,29 +20,27 @@ const RandomCharacter = ({onCharSelected}) => {
         updateChart();
     }, [])
 
-    const updateChart = async () => {
+    const updateChart = () => {
         clearError()
         const id = Math.floor(Math.random() * (1011400 - 1011000)) + 1011000;
-        setInProp(true)
-        await getCharacterById(id)
+        getCharacterById(id)
             .then(setCharacter)
-        setInProp(false)
     
     }
     const errorMessage = isError ? <ErrorMessage/> : null;
     const spinner = isLoading ? <Spinner/> : null;
-    const content = !(isLoading || isError || !character) ? <RandomCharacterView inProp={inProp} onCharSelected={onCharSelected}  character={character} />
-       : null;
+    const content = !(isLoading || isError || !character) ? 
+        <RandomCharacterView 
+            onCharSelected={onCharSelected}  
+            character={character} 
+        /> : null;
 
     return (
             <div className="randomchar">
                 {errorMessage}
                 {spinner}
-                <CSSTransition 
-                    in={!isLoading} 
-                    timeout={100} 
-                    classNames={'randomchar__block'}>
-                    {content}
+                <CSSTransition in={!isLoading} timeout={100} classNames={'randomchar__block'}>
+                   <>{content}</>
                 </CSSTransition>
                 <div className="randomchar__static">
                     <p className="randomchar__title">
