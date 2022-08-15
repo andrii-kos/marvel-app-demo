@@ -6,9 +6,15 @@ const useMarvelService = () => {
     const urlComics = 'https://gateway.marvel.com:443/v1/public/comics'
     const _apiKey = '7b3967d3ffa11a65742d713c3914517c';
 
+    const getCharacterByName = async (name) => {
+        const character = await request(`${urlCharacters}?name=${name}&apikey=${_apiKey}`);
+        return character.data.results.map(_tranformResponseCharacter)
+                
+    }
+
     const getAllCharacters = async (limit = 9, offset) => {
         const characters = await request(`${urlCharacters}?limit=${limit}&offset=${offset}&apikey=${_apiKey}`);
-        return characters.data.results.map(elem => _tranformResponseCharacter(elem));
+        return characters.data.results.map(_tranformResponseCharacter);
     }
 
     const getCharacterById = async (id) => {
@@ -23,7 +29,7 @@ const useMarvelService = () => {
 
     const getAllComics = async (offset, limit = 8) => {
         const responseData = await request(`${urlComics}?limit=${limit}&offset=${offset}&apikey=${_apiKey}`);
-        return responseData.data.results.map(elem => _transformResponseComics(elem));
+        return responseData.data.results.map(_transformResponseComics);
     }
 
     const _transformResponseComics = (res) => {
@@ -54,7 +60,8 @@ const useMarvelService = () => {
     }
     return { getAllCharacters, 
             getCharacterById, 
-            getAllComics, 
+            getCharacterByName,
+            getAllComics,
             getComicById, 
             isLoading, 
             isError, 

@@ -2,6 +2,7 @@ import RandomCharacter from '../randomCharacter/RandomCharacter';
 import CharacterCards from '../characterCards/CharacterCards';
 import CharacterCard from '../characterCard/CharacterCard';
 import ErrorBoundary from '../errorBoundary/ErrorBoundary';
+import CharacterFindForm from '..//characterFindForm/CharacterFindForm';
 
 import visionIMG from '..//../resources/vision.png';
 import {useState} from 'react';
@@ -19,9 +20,15 @@ const MainPage = () => {
                 <ErrorBoundary>
                     <CharacterCards onCharSelected={onCharSelected} />
                 </ErrorBoundary> 
-                <ErrorBoundary>
-                    <CharacterCard charId={charId}/>
-                </ErrorBoundary> 
+                <div>
+                    <ErrorBoundary>
+                        <CharacterCard isSeparatePage={false} charId={charId}/>
+                    </ErrorBoundary>
+                    <ErrorBoundary>
+                        <CharacterFindForm />
+                    </ErrorBoundary>
+                </div>
+                
             </div>
             <img className="bg-decoration" src={visionIMG} alt={visionIMG}></img>
         </>

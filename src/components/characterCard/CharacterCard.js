@@ -1,14 +1,15 @@
 import './CharacterCard.scss';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import useMarvelService from '../../services/MarvelService';
 
 import Skeleton from '../skeleton/Skeleton';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
-const CharacterCard = ({ charId }) => {
+const CharacterCard = ({ charId, isSeparatePage }) => {
+    const {characterId} = useParams();
     const [character, setCharacterState] = useState(null);
-    const {isLoading, isError, getCharacterById, clearError} = useMarvelService()
+    const {isLoading, isError, getCharacterById, clearError} = useMarvelService();
 
     const setCharacter = (character) => {
         setCharacterState(character)
@@ -21,7 +22,9 @@ const CharacterCard = ({ charId }) => {
     }
 
     useEffect(() => {
-        updateChart(1011334)
+        isSeparatePage 
+            ? updateChart(characterId) 
+            : updateChart(1011334)
     }, [])
   
     const prevProp = useRef(charId)
@@ -32,16 +35,41 @@ const CharacterCard = ({ charId }) => {
         }
     },[charId])
 
+
     const skeleton = isLoading ? <Skeleton /> : null;
     const errorMessage = isError ? <ErrorMessage /> : null;
-    const content =  character && !isLoading && !isError ? <CharView character={character}/> : null;
+    const content =  character && !isLoading && !isError 
+        ? isSeparatePage 
+        ? <CharViewPage character={character}/>
+        : <CharView character={character}/> : null;
 
     return (
-        <div className="char__info">
+        <div className={isSeparatePage ? 'char__page' : 'char__info'}>
             { skeleton }
             { errorMessage }
             { content }
         </div>
+    )
+}
+const CharViewPage = ({character}) => {
+    const {name, description, thumbnail} = character;
+    const isImageNotFound = thumbnail.indexOf('image_not_available') === -1;
+    const imageStyle = isImageNotFound ? null : {objectFit: 'unset'};
+    return (
+        <>
+            <div className="char__page__basics">
+                <img src={thumbnail} 
+                     alt={thumbnail} 
+                     style={imageStyle}/>
+            </div>
+            <div className="char__page__info">
+                <div className="char__page__info-name">{name}</div>
+                <div className="char__page__info-descr">
+                    {!description ? 'Sorry, Description not found': description}
+                </div>
+            </div>
+            
+        </>
     )
 }
 
@@ -88,7 +116,6 @@ const CharView = ({character}) => {
                 {comicsArr.length > 0 ? null : 'There are no comics to display :/'}
                 {comicsArr}
             </ul>
-            
         </>
     )
 }
