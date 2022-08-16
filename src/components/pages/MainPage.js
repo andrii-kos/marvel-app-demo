@@ -2,7 +2,7 @@ import RandomCharacter from '../randomCharacter/RandomCharacter';
 import CharacterCards from '../characterCards/CharacterCards';
 import CharacterCard from '../characterCard/CharacterCard';
 import ErrorBoundary from '../errorBoundary/ErrorBoundary';
-import CharacterFindForm from '..//characterFindForm/CharacterFindForm';
+import CharacterForm from '..//characterForm/CharacterForm';
 
 import visionIMG from '..//../resources/vision.png';
 import {useState} from 'react';
@@ -15,7 +15,9 @@ const MainPage = () => {
   }
     return (
         <>
-            <ErrorBoundary><RandomCharacter onCharSelected={onCharSelected} /></ErrorBoundary>
+            <ErrorBoundary>
+                <RandomCharacter onCharSelected={onCharSelected} />
+            </ErrorBoundary>
             <div className="char__content">
                 <ErrorBoundary>
                     <CharacterCards onCharSelected={onCharSelected} />
@@ -25,7 +27,7 @@ const MainPage = () => {
                         <CharacterCard isSeparatePage={false} charId={charId}/>
                     </ErrorBoundary>
                     <ErrorBoundary>
-                        <CharacterFindForm />
+                        <CharacterForm />
                     </ErrorBoundary>
                 </div>
                 
