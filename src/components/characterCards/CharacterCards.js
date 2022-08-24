@@ -1,20 +1,16 @@
 import './CharacterCards.scss';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import PropTypes from 'prop-types';
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import useMarvelService from '..//../services/MarvelService';
-// import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn';
-import ErrorMessage from '../errorMessage/ErrorMessage';
-import Spinner from '../spinner/Spinner';
+import setContent from '..//../utils/setContent'
 
+// import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn';
 
 const CharacterCards = (props) => {
     const [characters, setCharactersState] = useState([]);
+    const [newItemLoading, setNewItemLoading] = useState(true)
     const [offset, setOffset] = useState(0)
-
-    const { isLoading, isError, getAllCharacters } = useMarvelService();
-
+    const {process, setProcess, getAllCharacters} = useMarvelService();
     const liElem = useRef([])
   
     const setInitialChar = () => {
@@ -22,29 +18,27 @@ const CharacterCards = (props) => {
     }
     const setCharacters = (data) => {
         setCharactersState(characters => characters.concat(data))
-        
     }
 
     const onLoadMore = () => {
         setInitialChar()
         getAllCharacters('9', offset)
             .then(setCharacters)
-        
+            .then(() => setProcess('loaded'))
     }
 
-    const showModalByScroll = () => {
+    const scrollDownload = () => {
         if (window.pageYOffset + document.documentElement.clientHeight > 
-        document.documentElement.scrollHeight - 100 && !isLoading) {
+        document.documentElement.scrollHeight - 100 && process !== 'loading') {
             onLoadMore();
        } 
     }
 
-
     // show more character cards when sroll to the end of the page
     useEffect(() => {
-        window.addEventListener('scroll', showModalByScroll);
+        window.addEventListener('scroll', scrollDownload);
         return () => {
-          window.removeEventListener('scroll', showModalByScroll);
+          window.removeEventListener('scroll', scrollDownload);
         }
       },) 
 
@@ -52,55 +46,55 @@ const CharacterCards = (props) => {
         onLoadMore();
     }, [])
 
-    
     const onCardClick = (id,index) => {
         props.onCharSelected(id);
         liElem.current[index].focus();
     }
 
-    const charItem = characters.map(({name, thumbnail, id},index) => {
-        const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
-        const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
+    const CharItem = (characters) => {
+        const items = characters.map(({name, thumbnail, id},index) => {
+            const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
+            const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
+            
+            return (
+                <CSSTransition key={id} timeout={300} classNames={"char__item"} >
+                    <li className="char__item"
+                        onClick={() => onCardClick(id, index)}
+                        onKeyPress={() => onCardClick(id, index)}
+                        ref={(elem) => liElem.current[index] = elem}
+                        tabIndex={index + 7}>
+                        <img src={thumbnail} 
+                             alt="abyss" 
+                             style={imageStyle}/>
+                        <div className="char__name">{name}</div>
+                    </li>
+                </CSSTransition>
+                
+            )
+        });
+
         return (
-            <CSSTransition key={id} timeout={300} classNames={"char__item"} >
-                <li className="char__item"
-                    onClick={() => onCardClick(id, index)}
-                    onKeyPress={() => onCardClick(id, index)}
-                    ref={(elem) => liElem.current[index] = elem}
-                    tabIndex={index + 7}>
-                    <img src={thumbnail} 
-                         alt="abyss" 
-                         style={imageStyle}/>
-                    <div className="char__name">{name}</div>
-                </li>
-            </CSSTransition>
+            <ul className="char__grid">
+                <TransitionGroup  component={null}>
+                    {items}
+                </TransitionGroup>
+            </ul>
+            
             
         )
-    });
-
-    const error = isError ? <ErrorMessage /> : null;
-    const loading = isLoading ? <Spinner /> : null;
-    const content = charItem;
+    } 
+    
+    const elements = useMemo(() => {
+        return setContent((() => CharItem(characters)),undefined, process, newItemLoading)
+    }, [process])
 
     return (
         <div className="char__list">
-            <ul className="char__grid">
-                <TransitionGroup component={null}>
-                    { content }
-                </TransitionGroup>
-            </ul>
-            { error }
-            { loading }
+            {elements}
             {/* button to load more items */}
             {/* <LoadMoreBtn  isLoading={isLoading}  onLoadMore={onLoadMore}/> */}
         </div>
     )
-}
-
-//ddd
-
-CharacterCards.propTypes = {
-    onCharSelected: PropTypes.func.isRequired,
 }
 
 export default CharacterCards;

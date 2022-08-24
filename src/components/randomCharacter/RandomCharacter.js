@@ -9,7 +9,7 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 
 const RandomCharacter = ({onCharSelected}) => {
     const [character, setCharacterState] = useState(null);
-    const {isLoading, isError, getCharacterById, clearError} = useMarvelService()
+    const {process, getCharacterById, clearError} = useMarvelService()
 
     const setCharacter = (character) => {
         setCharacterState(character);
@@ -27,9 +27,9 @@ const RandomCharacter = ({onCharSelected}) => {
             .then(setCharacter)
     
     }
-    const errorMessage = isError ? <ErrorMessage/> : null;
-    const spinner = isLoading ? <Spinner/> : null;
-    const content = !(isLoading || isError || !character) ? 
+    const errorMessage = process === 'error' ? <ErrorMessage/> : null;
+    const spinner = process === 'loading' ? <Spinner/> : null;
+    const content = !(process === 'loading' || process === 'error' || !character) ? 
         <RandomCharacterView 
             onCharSelected={onCharSelected}  
             character={character} 
@@ -39,7 +39,7 @@ const RandomCharacter = ({onCharSelected}) => {
             <div className="randomchar">
                 {errorMessage}
                 {spinner}
-                <CSSTransition in={!isLoading} timeout={100} classNames={'randomchar__block'}>
+                <CSSTransition in={process !== 'loading'} timeout={100} classNames={'randomchar__block'}>
                    <>{content}</>
                 </CSSTransition>
                 <div className="randomchar__static">

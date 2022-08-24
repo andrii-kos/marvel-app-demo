@@ -1,49 +1,39 @@
 import './ComicCard.scss';
 import { useParams, useNavigate} from 'react-router-dom';
 import { useState, useEffect} from 'react';
+import setContent from '..//../utils/setContent';
 import useMarvelService from '../../services/MarvelService';
 
-import Skeleton from '../skeleton/Skeleton';
-import ErrorMessage from '../errorMessage/ErrorMessage';
-
-    
-
 const ComicCard = () => {
-
     const [comic, setComicState] = useState(null);
-    const {isLoading, isError, getComicById, clearError} = useMarvelService()
+    const {process, setProcess, getComicById, clearError} = useMarvelService();
     const {comicId} = useParams();
 
     const setComic = (comic) => {
-        setComicState(comic)
+        setComicState(comic);
     }
 
     const updateComic = (id) => {
-        clearError()
+        clearError();
         getComicById(id)
             .then(setComic)
+            .then(() => setProcess('loaded'))
     }
 
     useEffect(() => {
-        updateComic(comicId)
+        updateComic(comicId);
     },[])
-
-    const skeleton = isLoading ? <Skeleton /> : null;
-    const errorMessage = isError ? <ErrorMessage /> : null;
-    const content =  comic && !isLoading && !isError ? <ComicView comic={comic}/> : null;
 
     return (
         <>
-            {content}
-            {skeleton}
-            {errorMessage}
+            {setContent(ComicView, comic, process)}
         </>
         
     )
 }
 
-const ComicView = ({comic}) => {
-    const {title, desription, pages, language, price, thumbnail} = comic
+const ComicView = ({data}) => {
+    const {title, desription, pages, language, price, thumbnail} = data;
     const navigate = useNavigate();
     return (    
             <div className="single-comic">

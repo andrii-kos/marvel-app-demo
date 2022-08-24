@@ -1,37 +1,39 @@
 import './ComicsCards.scss';
 import { Link } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-/* import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn'; */
 import useMarvelService from '../../services/MarvelService';
-import { useState, useEffect } from 'react'
-import Spinner from '../spinner/Spinner';
-import ErrorMessage from '../errorMessage/ErrorMessage';
+import setContent from '..//../utils/setContent';
+import { useState, useEffect, useMemo } from 'react';
+/* import LoadMoreBtn from '../loadMoreBtn/LoadMoreBtn'; */
 
 const ComicsCards = () => {
-    const [comics, setComicsState] = useState([])
-    const [offset, setOffsetState] = useState(0)
-    const {getAllComics, isError, isLoading, clearError} = useMarvelService()
+    const [comics, setComicsState] = useState([]);
+    const [offset, setOffsetState] = useState(0);
+    const [newItemLoading, setNewItemLoading] = useState(true);
+    const {process, setProcess, getAllComics, clearError} = useMarvelService();
 
     const getComics = () => {
-        clearError()
-        getAllComics(offset).then(setComics)
-        setOffsetState(offset => offset + 8)
+        clearError();
+        getAllComics(offset)
+            .then(setComics)
+            .then(() => setProcess('loaded'));
+        setOffsetState(offset => offset + 8);
     }
     useEffect(() => {
-        getComics()
+        getComics();
     }, [])
 
     const onLoadMore = () => {
-        getComics()
+        getComics();
     }
 
     const setComics = (data) => {
-        setComicsState(comics => comics.concat(data))
+        setComicsState(comics => comics.concat(data));
     }
 
     const showModalByScroll = () => {
         if (window.pageYOffset + document.documentElement.clientHeight >= 
-        document.documentElement.scrollHeight - 100 && !isLoading) {
+        document.documentElement.scrollHeight - 100 && process !== 'loading') {
             onLoadMore();
        } 
     }
@@ -45,41 +47,43 @@ const ComicsCards = () => {
         }
       },) 
 
-    const comicsList = comics.map(({thumbnail, title ,price, id}, index) => {
-        const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
-        const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
+    const ComicsList = (comics) => {
+        const items = comics.map(({thumbnail, title ,price, id}, index) => {
+            const isImageNotFound = thumbnail.indexOf('image_not_available') === -1
+            const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
+            return (
+                <CSSTransition key={index} timeout={300} classNames="comics__item">
+                    <li key={index} className="comics__item">
+                        <Link to={`${id}`}>
+                            <img 
+                                src={thumbnail} 
+                                alt={title} 
+                                className="comics__item-img" 
+                                style={imageStyle}
+                            />
+                            <div className="comics__item-name">{title}</div>
+                            <div className="comics__item-price">{price} $</div>
+                        </Link>
+                    </li>
+                </CSSTransition>
+            )
+        })
         return (
-            <CSSTransition key={index} timeout={300} classNames="comics__item">
-                <li key={index} className="comics__item">
-                    <Link to={`${id}`}>
-                        <img 
-                            src={thumbnail} 
-                            alt={title} 
-                            className="comics__item-img" 
-                            style={imageStyle}
-                        />
-                        <div className="comics__item-name">{title}</div>
-                        <div className="comics__item-price">{price} $</div>
-                    </Link>
-                </li>
-            </CSSTransition>
-            
+            <ul className="comics__grid">
+                <TransitionGroup component={null} >
+                    { items }
+                </TransitionGroup>
+            </ul>
         )
-    })
+    }
 
-    const error = isError ? <ErrorMessage /> : null;
-    const loading = isLoading ? <Spinner /> : null;
+    const elements = useMemo(() => {
+        return setContent((() => ComicsList(comics)),undefined,process , newItemLoading)
+    }, [process])
 
     return (
         <div className="comics__list">
-            <ul className="comics__grid">
-                <TransitionGroup component={null} >
-                    { comicsList }
-                </TransitionGroup>
-                
-            </ul>
-            { loading }
-            { error }
+            {elements}
             {/* <LoadMoreBtn onLoadMore={onLoadMore} isLoading={isLoading} /> */}
         </div>
     )

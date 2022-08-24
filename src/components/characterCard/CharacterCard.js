@@ -2,14 +2,14 @@ import './CharacterCard.scss';
 import { Link, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import useMarvelService from '../../services/MarvelService';
+import setContent from '../../utils/setContent';
 
-import Skeleton from '../skeleton/Skeleton';
-import ErrorMessage from '../errorMessage/ErrorMessage';
+
 
 const CharacterCard = ({ charId, isSeparatePage }) => {
     const {characterId} = useParams();
     const [character, setCharacterState] = useState(null);
-    const {isLoading, isError, getCharacterById, clearError} = useMarvelService();
+    const {process, setProcess, getCharacterById, clearError} = useMarvelService();
 
     const setCharacter = (character) => {
         setCharacterState(character)
@@ -19,6 +19,7 @@ const CharacterCard = ({ charId, isSeparatePage }) => {
         clearError()
         getCharacterById(id)
             .then(setCharacter)
+            .then(() => setProcess('loaded'))
     }
 
     useEffect(() => {
@@ -36,23 +37,14 @@ const CharacterCard = ({ charId, isSeparatePage }) => {
     },[charId])
 
 
-    const skeleton = isLoading ? <Skeleton /> : null;
-    const errorMessage = isError ? <ErrorMessage /> : null;
-    const content =  character && !isLoading && !isError 
-        ? isSeparatePage 
-        ? <CharViewPage character={character}/>
-        : <CharView character={character}/> : null;
-
     return (
         <div className={isSeparatePage ? 'char__page' : 'char__info'}>
-            { skeleton }
-            { errorMessage }
-            { content }
+            {setContent((isSeparatePage ? CharViewPage : CharView), character, process)}
         </div>
     )
 }
-const CharViewPage = ({character}) => {
-    const {name, description, thumbnail} = character;
+const CharViewPage = ({data}) => {
+    const {name, description, thumbnail} = data;
     const isImageNotFound = thumbnail.indexOf('image_not_available') === -1;
     const imageStyle = isImageNotFound ? null : {objectFit: 'unset'};
     return (
@@ -73,8 +65,8 @@ const CharViewPage = ({character}) => {
     )
 }
 
-const CharView = ({character}) => {
-    const {name, description, thumbnail, homePage, wiki, comics} = character;
+const CharView = ({data}) => {
+    const {name, description, thumbnail, homePage, wiki, comics} = data;
     const isImageNotFound = thumbnail.indexOf('image_not_available') === -1;
     const imageStyle = isImageNotFound  ? null : {objectFit: 'unset'};
     const comicsArr = comics.map((item, index) => {
