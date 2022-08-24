@@ -1,9 +1,9 @@
 import CharacterCard from '../characterCard/CharacterCard'
 
-const ComicPage = () => {
+const CharacterPage = () => {
     return (
         <CharacterCard isSeparatePage={true} />
     )
 }
 
-export default ComicPage
+export default CharacterPage
